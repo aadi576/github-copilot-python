@@ -68,6 +68,26 @@ def check_solution():
     if board is None:
         return jsonify({'error': 'Missing "board" in request'}), 400
 
+    # Validate client input before nested indexing can raise an unhandled error.
+    if (
+        not isinstance(board, list)
+        or len(board) != sudoku_logic.SIZE
+        or any(
+            not isinstance(row, list)
+            or len(row) != sudoku_logic.SIZE
+            or any(
+                isinstance(value, bool)
+                or not isinstance(value, int)
+                or not 0 <= value <= 9
+                for value in row
+            )
+            for row in board
+        )
+    ):
+        return jsonify({
+            'error': 'Board must be a 9x9 list of integers between 0 and 9'
+        }), 400
+
     solution = CURRENT.get('solution')
     if solution is None:
         return jsonify({'error': 'No game in progress'}), 400
@@ -75,7 +95,6 @@ def check_solution():
     incorrect = []
     for i in range(sudoku_logic.SIZE):
         for j in range(sudoku_logic.SIZE):
-            # If board is malformed, this may raise; let that surface as a 500
             if board[i][j] != solution[i][j]:
                 incorrect.append([i, j])
 

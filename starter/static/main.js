@@ -70,6 +70,7 @@ function saveScore() {
   try {
     localStorage.setItem('sudokuScores', JSON.stringify(scores.slice(0, 10)));
   } catch (error) {
+    document.getElementById('message').innerText = 'Your score could not be saved.';
     return;
   }
   renderScores();
