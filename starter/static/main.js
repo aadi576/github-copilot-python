@@ -1,6 +1,79 @@
 // Client-side rendering and interaction for the Flask-backed Sudoku
 const SIZE = 9;
 let puzzle = [];
+let timerInterval = null;
+let elapsedSeconds = 0;
+let hintCount = 0;
+let gameCompleted = false;
+
+// Format elapsed seconds for the timer and scoreboard.
+function formatTime(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+  const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+  return `${minutes}:${seconds}`;
+}
+
+function updateTimer() {
+  document.getElementById('timer').innerText = formatTime(elapsedSeconds);
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  elapsedSeconds = 0;
+  updateTimer();
+  timerInterval = setInterval(() => {
+    elapsedSeconds += 1;
+    updateTimer();
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+// Load, sort, and display the persistent top-ten scoreboard.
+function renderScores() {
+  let scores = [];
+  try {
+    scores = JSON.parse(localStorage.getItem('sudokuScores')) || [];
+  } catch (error) {
+    scores = [];
+  }
+  scores.sort((first, second) => first.time - second.time);
+  const scoreList = document.getElementById('score-list');
+  scoreList.innerHTML = '';
+  scores.slice(0, 10).forEach((score) => {
+    const item = document.createElement('li');
+    item.innerText = `${score.name} - ${formatTime(score.time)} - ${score.difficulty} - ${score.hints} hint(s)`;
+    scoreList.appendChild(item);
+  });
+}
+
+// Prompt for a completed player's name and persist their score.
+function saveScore() {
+  const name = prompt('Puzzle complete! Enter your name:');
+  if (!name || !name.trim()) return;
+  let scores = [];
+  try {
+    scores = JSON.parse(localStorage.getItem('sudokuScores')) || [];
+  } catch (error) {
+    scores = [];
+  }
+  scores.push({
+    name: name.trim(),
+    time: elapsedSeconds,
+    difficulty: document.getElementById('difficulty').value,
+    hints: hintCount
+  });
+  scores.sort((first, second) => first.time - second.time);
+  try {
+    localStorage.setItem('sudokuScores', JSON.stringify(scores.slice(0, 10)));
+  } catch (error) {
+    return;
+  }
+  renderScores();
+}
 
 function createBoardElement() {
   const boardDiv = document.getElementById('sudoku-board');
@@ -48,10 +121,40 @@ function renderPuzzle(puz) {
 }
 
 async function newGame() {
-  const res = await fetch('/new');
+  const difficulty = document.getElementById('difficulty').value;
+  const res = await fetch(`/new?difficulty=${encodeURIComponent(difficulty)}`);
   const data = await res.json();
+  if (data.error) {
+    document.getElementById('message').innerText = data.error;
+    return;
+  }
   renderPuzzle(data.puzzle);
   document.getElementById('message').innerText = '';
+  hintCount = 0;
+  gameCompleted = false;
+  startTimer();
+}
+
+async function getHint() {
+  const msg = document.getElementById('message');
+  const res = await fetch('/hint');
+  const data = await res.json();
+  if (!res.ok || data.error) {
+    msg.style.color = '#d32f2f';
+    msg.innerText = data.error || 'Unable to get a hint.';
+    return;
+  }
+
+  const index = data.row * SIZE + data.col;
+  const input = document.getElementById('sudoku-board').getElementsByTagName('input')[index];
+  if (input) {
+    input.value = data.value;
+    input.disabled = true;
+    input.className = 'sudoku-cell hint-cell';
+    hintCount += 1;
+  }
+  msg.style.color = '';
+  msg.innerText = 'A hint has been added.';
 }
 
 async function checkSolution() {
@@ -87,7 +190,12 @@ async function checkSolution() {
       inp.className = 'sudoku-cell incorrect';
     }
   }
-  if (incorrect.size === 0) {
+  if (data.complete) {
+    stopTimer();
+    if (!gameCompleted) {
+      gameCompleted = true;
+      saveScore();
+    }
     msg.style.color = '#388e3c';
     msg.innerText = 'Congratulations! You solved it!';
   } else {
@@ -100,6 +208,11 @@ async function checkSolution() {
 window.addEventListener('load', () => {
   document.getElementById('new-game').addEventListener('click', newGame);
   document.getElementById('check-solution').addEventListener('click', checkSolution);
+  document.getElementById('hint').addEventListener('click', getHint);
+  document.getElementById('dark-mode').addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+  });
+  renderScores();
   // initialize
   newGame();
 });

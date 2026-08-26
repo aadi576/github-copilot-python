@@ -6,13 +6,28 @@
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <h1>Sudoku Game</h1>
+  <div class="top-bar">
+    <h1>Sudoku Game</h1>
+    <button id="dark-mode" type="button">Dark Mode</button>
+  </div>
+  <div id="timer" aria-live="polite">00:00</div>
   <div id="sudoku-board"></div>
   <div class="controls">
-    <button id="new-game">New Game</button>
-    <button id="check-solution">Check Solution</button>
+    <label for="difficulty">Difficulty</label>
+    <select id="difficulty">
+      <option value="easy">Easy</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+    <button id="new-game" type="button">New Game</button>
+    <button id="check-solution" type="button">Check Solution</button>
+    <button id="hint" type="button">Hint</button>
     <span id="message"></span>
   </div>
+  <section id="scoreboard" aria-labelledby="scoreboard-title">
+    <h2 id="scoreboard-title">Top 10</h2>
+    <ol id="score-list"></ol>
+  </section>
   <script src="/static/main.js"></script>
 </body>
 </html>

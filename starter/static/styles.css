@@ -1,6 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     background: #f4f4f4;
+    color: #333;
     text-align: center;
     margin: 0;
     padding: 0;
@@ -9,6 +10,27 @@ body {
 h1 {
     margin-top: 30px;
     color: #333;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.top-bar h1 {
+    margin-bottom: 0;
+}
+
+#dark-mode {
+    background: #455a64;
+}
+
+#timer {
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+    font-weight: bold;
 }
 
 #sudoku-board {
@@ -34,18 +56,40 @@ h1 {
     transition: background 0.2s;
 }
 
+/* Alternate the nine flat-row cells into a checkerboard of 3x3 boxes. */
+.sudoku-row:nth-child(-n+3) .sudoku-cell:nth-child(-n+3),
+.sudoku-row:nth-child(-n+3) .sudoku-cell:nth-child(n+7),
+.sudoku-row:nth-child(n+7) .sudoku-cell:nth-child(-n+3),
+.sudoku-row:nth-child(n+7) .sudoku-cell:nth-child(n+7),
+.sudoku-row:nth-child(n+4):nth-child(-n+6) .sudoku-cell:nth-child(n+4):nth-child(-n+6) {
+    background: #e8edf0;
+}
+
+.sudoku-row:nth-child(-n+3) .sudoku-cell:nth-child(n+4):nth-child(-n+6),
+.sudoku-row:nth-child(n+4):nth-child(-n+6) .sudoku-cell:nth-child(-n+3),
+.sudoku-row:nth-child(n+4):nth-child(-n+6) .sudoku-cell:nth-child(n+7),
+.sudoku-row:nth-child(n+7) .sudoku-cell:nth-child(n+4):nth-child(-n+6) {
+    background: #ffffff;
+}
+
 .sudoku-cell:focus {
-    background: #e0f7fa;
+    background: #e0f7fa !important;
 }
 
 .sudoku-cell.prefilled {
-    background: #e0e0e0;
+    background: #e0e0e0 !important;
     font-weight: bold;
     color: #333;
 }
 
+.sudoku-cell.hint-cell {
+    background: #fff3cd !important;
+    color: #795548;
+    font-weight: bold;
+}
+
 .sudoku-cell.incorrect {
-    background: #ffcdd2;
+    background: #ffcdd2 !important;
 }
 
 .sudoku-cell:nth-child(3),
@@ -60,6 +104,16 @@ h1 {
 
 .controls {
     margin: 20px auto;
+}
+
+select {
+    padding: 8px 10px;
+    margin: 0 8px;
+    font-size: 16px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
 }
 
 button {
@@ -82,4 +136,151 @@ button:hover {
     margin-left: 20px;
     font-size: 16px;
     color: #d32f2f;
+}
+
+#scoreboard {
+    width: min(420px, calc(100% - 32px));
+    margin: 28px auto;
+    text-align: left;
+}
+
+#scoreboard h2 {
+    text-align: center;
+}
+
+#score-list {
+    margin: 0;
+    padding-left: 32px;
+}
+
+#score-list li {
+    padding: 4px 0;
+}
+
+body.dark-mode {
+    background: #182229;
+    color: #e6edf3;
+}
+
+body.dark-mode h1 {
+    color: #f4f7f9;
+}
+
+body.dark-mode #sudoku-board {
+    border-color: #b0bec5;
+    background: #26343d;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+body.dark-mode .sudoku-cell {
+    border-color: #607d8b;
+    background: #30404a;
+    color: #f4f7f9;
+}
+
+body.dark-mode .sudoku-row:nth-child(-n+3) .sudoku-cell:nth-child(-n+3),
+body.dark-mode .sudoku-row:nth-child(-n+3) .sudoku-cell:nth-child(n+7),
+body.dark-mode .sudoku-row:nth-child(n+7) .sudoku-cell:nth-child(-n+3),
+body.dark-mode .sudoku-row:nth-child(n+7) .sudoku-cell:nth-child(n+7),
+body.dark-mode .sudoku-row:nth-child(n+4):nth-child(-n+6) .sudoku-cell:nth-child(n+4):nth-child(-n+6) {
+    background: #3a4a53;
+}
+
+body.dark-mode .sudoku-row:nth-child(-n+3) .sudoku-cell:nth-child(n+4):nth-child(-n+6),
+body.dark-mode .sudoku-row:nth-child(n+4):nth-child(-n+6) .sudoku-cell:nth-child(-n+3),
+body.dark-mode .sudoku-row:nth-child(n+4):nth-child(-n+6) .sudoku-cell:nth-child(n+7),
+body.dark-mode .sudoku-row:nth-child(n+7) .sudoku-cell:nth-child(n+4):nth-child(-n+6) {
+    background: #30404a;
+}
+
+body.dark-mode .sudoku-cell:focus {
+    background: #385d68 !important;
+}
+
+body.dark-mode .sudoku-cell.prefilled {
+    background: #52636b !important;
+    color: #ffffff;
+}
+
+body.dark-mode .sudoku-cell.hint-cell {
+    background: #806b2a !important;
+    color: #fff8d6;
+}
+
+body.dark-mode .sudoku-cell.incorrect {
+    background: #8f3f48 !important;
+    color: #fff;
+}
+
+body.dark-mode .sudoku-cell:nth-child(3),
+body.dark-mode .sudoku-cell:nth-child(6) {
+    border-right-color: #b0bec5;
+}
+
+body.dark-mode .sudoku-row:nth-child(3) .sudoku-cell,
+body.dark-mode .sudoku-row:nth-child(6) .sudoku-cell {
+    border-bottom-color: #b0bec5;
+}
+
+body.dark-mode select {
+    background: #30404a;
+    border-color: #78909c;
+    color: #f4f7f9;
+}
+
+body.dark-mode button {
+    background: #1976a8;
+}
+
+body.dark-mode button:hover {
+    background: #238bc0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 0 8px;
+        overflow-x: hidden;
+    }
+
+    .top-bar {
+        flex-wrap: wrap;
+        gap: 8px 16px;
+    }
+
+    h1 {
+        font-size: 26px;
+        margin-top: 20px;
+    }
+
+    #sudoku-board {
+        display: block;
+        width: max-content;
+        max-width: 100%;
+        margin: 20px auto;
+    }
+
+    .sudoku-cell {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .controls button,
+    .controls select {
+        margin: 0;
+        font-size: 14px;
+    }
+
+    #message {
+        flex-basis: 100%;
+        margin: 4px 0 0;
+    }
 }
